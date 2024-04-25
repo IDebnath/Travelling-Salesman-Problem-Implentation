@@ -1,4 +1,3 @@
-import sys
 import time
 from itertools import combinations as it_combinations
 
@@ -44,6 +43,7 @@ def tsp(cost):
     # Final step: return to the start city (0)
     min_cost = float('inf')
     final_mask = (1 << n) - 1
+    last_leg = None
     for i in range(1, n):
         if (final_mask, i) in dp:
             cost_to_return = dp[(final_mask, i)] + cost[i][0]
@@ -52,16 +52,18 @@ def tsp(cost):
                 last_leg = i
     
     # Reconstruct the tour path
-    tour = []
+    tour = [0]
     mask = final_mask
-    while mask != 0:
+    if last_leg is not None:
+        tour.append(0)  # start at the beginning
+    while last_leg:
         tour.append(last_leg)
-        next_city = parent.get((mask, last_leg))
-        mask &= ~(1 << last_leg)
-        last_leg = next_city if next_city is not None else 0
+        next_mask = mask & ~(1 << last_leg)
+        next_leg = parent.get((mask, last_leg))
+        mask = next_mask
+        last_leg = next_leg if next_leg is not None else 0
     
     tour.append(0)
-    tour.reverse()
 
     return min_cost, tour
 
